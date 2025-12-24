@@ -1,0 +1,98 @@
+name: CI Pipeline — Self-Hosted
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  # ============================
+  # STAGE 1 — BUILDING
+  # ============================
+  build-app:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare build environment
+        run: |
+          echo "Preparing build environment..."
+          echo "CI executed by: Dovran"
+
+      - name: Build App
+        run: |
+          echo "Building application..."
+          echo "Build completed by Dovran"
+
+  # ============================
+  # STAGE 2 — TESTING
+  # ============================
+  run-unit-test:
+    runs-on: self-hosted
+    needs: build-app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run unit tests
+        run: |
+          echo "Running unit tests..."
+          echo "Unit tests passed (Dovran)"
+
+      - name: Run integration tests
+        run: |
+          echo "Running integration tests..."
+          echo "Integration tests passed (Dovran)"
+
+  run-lint:
+    runs-on: self-hosted
+    needs: build-app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run linter
+        run: |
+          echo "Running linter..."
+          echo "Lint completed by Dovran"
+
+  # ============================
+  # STAGE 3 — PACKAGING
+  # ============================
+  package-app:
+    runs-on: self-hosted
+    needs: [run-unit-test, run-lint]
+    steps:
+      - name: Create artifacts
+        run: |
+          mkdir -p dist
+          echo "Artifact created by Dovran" > dist/artifact.txt
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact-dovran
+          path: dist/
+
+  # ============================
+  # STAGE 4 — DEPLOY
+  # ============================
+  deploy:
+    runs-on: self-hosted
+    needs: package-app
+    steps:
+      - name: Deploy application
+        run: |
+          echo "Deploying application..."
+          echo "Deployment performed by Dovran"
+
+      - name: Upload deployment log
+        run: |
+          echo "Deployment completed by Dovran at $(date)" > deployment_dovran.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deployment-log-dovran
+          path: deployment_dovran.txt
